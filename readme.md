@@ -6,7 +6,7 @@
 
 # 硬件兼容性
 
-见Hardware内说明，这里测试于xxx
+见Hardware内说明，这里测试于这个项目中的板载单片机[alwaysmy/Artix-7_GTP_USB3_WCH_MCU](https://github.com/alwaysmy/Artix-7_GTP_USB3_WCH_MCU)
 
 ![image-20251008003302689](./readme_att/image-20251008003302689.png)
 
