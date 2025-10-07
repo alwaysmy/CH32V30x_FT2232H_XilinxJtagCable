@@ -1,0 +1,4 @@
+1_Firmware/CH32V30x_cherryusb_ft2232h/obj/*
+1_Firmware/CH32V30x_cherryusb_ft2232h/cherryusb/*
+# *.elf*
+# *.hex
