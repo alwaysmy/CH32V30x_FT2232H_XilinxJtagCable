@@ -20,7 +20,7 @@
 
 #include "debug.h"
 #include "ftdi.h"
-#include "ch32v30x.h"
+
 #include "ch32v30x_conf.h"
 #include "ch32v30x_it.h"
 #include "usb_config.h"
@@ -29,10 +29,9 @@
 /* Global typedef */
 
 /* Global define */
-#define TIMER_HZ (SYSCLK_FREQ/8)
 
-
-
+u8 btn_Flag = 0;
+#define PIN_LED_OUT( d )          if( d ) GPIOC->BSHR = GPIO_Pin_8; else GPIOC->BCR = GPIO_Pin_8; 
 /******************************************************************************/
 
 
@@ -53,7 +52,7 @@
 // /******************************************************************************/
 
 u32 time_ms = 0;
-static u32 last_tcnt;
+static u64 last_tcnt;
 
 void timer_init(void)
 {
@@ -63,39 +62,46 @@ void timer_init(void)
 
 void reset_timer(void)
 {
-
-	SYSTICK->CTLR = 0x20;
-	SYSTICK->CTLR = 0x01;
+	SysTick->SR &=~STK_SR_CNTIF;//计数器状态清空
+	// SysTick->CMP = 0;//比较计数器，这里不管
+	// SysTick->CNT = 0;// 计数值归零，不用，用CTLR来清空
+	SysTick->CTLR = STK_CTLR_INIT|STK_CTLR_STE;//清空，使能,设置为系统时钟8分频
+	// SYSTICK->CTLR = 0x20;
+	// SYSTICK->CTLR = 0x01;
 	time_ms = 0;
 	last_tcnt = 0;
 }
 
 
-u32 get_timer(void)
+static inline u64 get_timer(void)
 {
-	return SYSTICK->CNTL;
+	// return SYSTICK->CNTL;
+	return SysTick->CNT;
 }
 
+//
+// static inline void udelay(u32 us)
+// {
+// 	// reset_timer();
+// 	// u64 end = get_timer() + us*(TIMER_HZ/1000000);
+// 	// while(get_timer()<end);
+// 	Delay_Us(us);
+// }
 
-void udelay(int us)
-{
-	reset_timer();
-	u32 end = get_timer() + us*(TIMER_HZ/1000000);
-	while(get_timer()<end);
-}
 
+// static inline void mdelay(u32 ms)
+// {
+// 	// reset_timer();
+// 	// u64 end = get_timer() + ms*(TIMER_HZ/1000);
+// 	// while(get_timer()<end);
+// 	Delay_Ms(ms);
 
-void mdelay(int ms)
-{
-	reset_timer();
-	u32 end = get_timer() + ms*(TIMER_HZ/1000);
-	while(get_timer()<end);
-}
+// }
 
 
 void soft_timer(void)
 {
-	u32 tcnt = get_timer();
+	u64 tcnt = get_timer();
 	if(tcnt > last_tcnt){
 		tcnt -= last_tcnt;
 	}else{
@@ -120,7 +126,7 @@ void soft_timer(void)
 
 void gpio_set(int group, int bit, int val)
 {
-	volatile GPIO_REGS *gpio = (GPIO_REGS*)(0x40010800+group*0x0400);
+	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
 	int mask = 1<<bit;
 
 	if(val)
@@ -132,7 +138,7 @@ void gpio_set(int group, int bit, int val)
 
 int gpio_get(int group, int bit)
 {
-	volatile GPIO_REGS *gpio = (GPIO_REGS*)(0x40010800+group*0x0400);
+	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
 	int mask = 1<<bit;
 
 	return (gpio->INDR & mask) ? 1: 0;
@@ -142,7 +148,7 @@ int gpio_get(int group, int bit)
 void gpio_mode(int group, int bit, int mode, int ioval)
 {
 	int mreg;
-	volatile GPIO_REGS *gpio = (GPIO_REGS*)(0x40010800+group*0x0400);
+	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
 
 	if(ioval){
 		gpio->OUTDR |= 1<<bit;
@@ -169,24 +175,24 @@ void gpio_mode(int group, int bit, int mode, int ioval)
 /******************************************************************************/
 
 
-static char *excp_msg[16] = {
-	"Inst Align",
-	"Inst Fault",
-	"Inst Illegal",
-	"Breakpoint",
-	"Load Align",
-	"Load Fault",
-	"Store Align",
-	"Store Fault",
-	"ECall_U",
-	"ECall_S",
-	"Reserved",
-	"ECall_M",
-	"IPage Fault",
-	"LPage Fault",
-	"Reserved",
-	"SPage Fault",
-};
+// static char *excp_msg[16] = {
+// 	"Inst Align",
+// 	"Inst Fault",
+// 	"Inst Illegal",
+// 	"Breakpoint",
+// 	"Load Align",
+// 	"Load Fault",
+// 	"Store Align",
+// 	"Store Fault",
+// 	"ECall_U",
+// 	"ECall_S",
+// 	"Reserved",
+// 	"ECall_M",
+// 	"IPage Fault",
+// 	"LPage Fault",
+// 	"Reserved",
+// 	"SPage Fault",
+// };
 
 
 // __attribute__((interrupt)) 会保存所有临时寄存器和浮点寄存器
@@ -246,18 +252,26 @@ void usb_dc_low_level_init(void)
 uint8_t RCC_Configuration( void )
 {
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_SRAM|RCC_AHBPeriph_DMA2,ENABLE);//SRAM DMA2 DMA1,不知道为啥要开sram，示例程序没开，官方USB转JTAG也没开
-    	/* TIM2 clock enable */
-	
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE |
 	                        RCC_APB2Periph_USART1|RCC_APB2Periph_TIM1|RCC_APB2Periph_TIM8, ENABLE );
 	/* AFIO clock enable */
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
-    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR|RCC_APB1Periph_USART3|RCC_APB1Periph_SPI2|RCC_APB1Periph_UART8, ENABLE );						/* 使能TIM2 */
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR|RCC_APB1Periph_USART3|RCC_APB1Periph_SPI2|RCC_APB1Periph_UART8, ENABLE );
     /* 由于其中的PB3、PB4对应与单片机的JTAG功能,所以必须先禁用JTAG功能 */
 #if( DEF_DEBUG_FUN_EN == 1 )
     GPIO_PinRemapConfig( GPIO_Remap_SWJ_Disable, ENABLE );
 #endif
 	return( 0x00 );
+}
+void LEDINIT()
+{
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE ); //配置中断需要打开AFIO
+	GPIO_InitTypeDef  GPIO_InitStructure;
+    //RCC已经开过了,这里不重复开了
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //13 14 10
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 //TODO:原版实现是在jtag_setup();里面,会在SIO_SET_BITMODE_REQUEST:里面调用一次,可以替换
 void JTGA_IO_Init()
@@ -277,9 +291,46 @@ void JTGA_IO_Init()
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//上拉下拉无所谓,对面是输出,这里参照原设计上拉
     GPIO_Init(JTAG_GPIOPORT, &GPIO_InitStructure);
 }
+void BtnInit()
+{ 
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    EXTI_InitTypeDef EXTI_InitStructure = {0};
+    NVIC_InitTypeDef NVIC_InitStructure = {0};
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE ); //配置中断需要打开AFIO
+
+    /* GPIO In Configuration: PA8) */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    /* GPIOA ----> EXTI_Line0 */
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource8);
+    EXTI_InitStructure.EXTI_Line = EXTI_Line8;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+}
 void Periph_Init()
 {
     JTGA_IO_Init();
+}
+void btnHandler(u8 btnStatus)
+{
+	if(btnStatus)
+	{
+		 PIN_LED_OUT(1);
+	}
+	else
+	{
+		 PIN_LED_OUT(0);
+	}
 }
 /*********************************************************************
  * @fn      main
@@ -295,6 +346,8 @@ int main(void)
     RCC_Configuration();
 	Delay_Init();
     // Periph_Init();
+	LEDINIT();
+	BtnInit();
     /**SDIPRINT仅限调试的时候使用，如果有打印，下电后不重新接调试器似乎会阻塞**/
     #if (SDI_PRINT == SDI_PR_OPEN) 
         SDI_Printf_Enable();//上位机波特率无所谓
@@ -303,18 +356,41 @@ int main(void)
     #endif
 	DEBUG_PRINT("SysClk:%d\r\n",SystemCoreClock);
 	DEBUG_PRINT( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
-	// DEBUG_PRINT("This is printf example\r\n");
+	PIN_LED_OUT(1);
 
-	// cdc_acm_init(0, 0);
-    
 	usb_dc_user_init(0,0);
-
 	reset_timer();
 	while(1){
 		soft_timer();
 		ftdi_timer_handle();//time_ms>=ftdevs[0].timeout才会发送
 		// WFI(); // WFI会影响正在工作的外设.
 		jtag_handle();
+		btnHandler(btn_Flag);
 	}
 }
 
+
+
+// 中断服务函数 //TODO:这里有问题，进来一次中断就进不来了。。不知道为啥
+void EXTI9_5_IRQHandler(void)
+{
+    // 检查是否是PA8触发的中断
+    if(EXTI_GetITStatus(EXTI_Line8) != RESET)
+    {
+        //
+        Delay_Ms(1);//本来就是要打断的，不在乎阻塞了
+        
+        // 再次检查按键状态，确认按键确实被按下
+        if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8) == 0)
+        {
+            // 这里添加按键按下后的处理代码
+            // 例如：设置标志位、控制LED等
+			btn_Flag = !btn_Flag;
+        }
+        
+        // // 清除中断标志位
+		
+        EXTI_ClearITPendingBit(EXTI_Line8);
+    }
+
+}

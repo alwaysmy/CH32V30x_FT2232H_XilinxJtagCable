@@ -2,12 +2,7 @@
 #define _USBD_FTDI_H_
 
 #include "main.h"
-
-#define EEPROM _93C46_    //暂时没用
-// #define EEPROM _93C56_
-// #define EEPROM _93C66_
-
-#define FTDI_DEV FT2232H  //暂时没用
+#include "ftdi_dev_cfg.h"
 
 
 
@@ -32,17 +27,14 @@
 /******************************************************************************/
 
 
-#define EEPROM_WORD_LEN 0x80 //93c56是0x80,93c46是0x40,93cc66是0x100,高的可以直接兼容低的
-// #define EEPROM_WORD_LEN 0x40
-// #define EEPROM_WORD_LEN 0x100
-
 #define FT2232H_PID 0x6010
 #define FT4232H_PID 0x6011
 #define FT232H_PID 0x6014
 /* bcd devices,必须对应准确的型号，否则PC驱动操作不一致，读eeprom会卡住*/
-#define FT2232H_BCDD 0x0700
-#define FT2232D_BCDD 0x0500  //0x400也显示2232D
+#define FT232B_BCDD 0x400
+#define FT2232D_BCDD 0x0500  //0x400也显示2232D //2232C？
 #define FT232R_BCDD 0x0600
+#define FT2232H_BCDD 0x0700
 #define FT4232H_BCDD 0x0800
 #define FT232H_BCDD 0x0900
 /******************************************************************************/

@@ -1,0 +1,214 @@
+    ---------------------- Device Descriptor ----------------------
+bLength                  : 0x12 (18 bytes)
+bDescriptorType          : 0x01 (Device Descriptor)
+bcdUSB                   : 0x200 (USB Version 2.00)
+bDeviceClass             : 0x00 (defined by the interface descriptors)
+bDeviceSubClass          : 0x00
+bDeviceProtocol          : 0x00
+bMaxPacketSize0          : 0x40 (64 bytes)
+idVendor                 : 0x0403 (Future Technology Devices International Limited)
+idProduct                : 0x6010
+bcdDevice                : 0x0700
+iManufacturer            : 0x01 (String Descriptor 1)
+ Language 0x0409         : "Xilinx"
+iProduct                 : 0x02 (String Descriptor 2)
+ Language 0x0409         : "rev1a_22"
+iSerialNumber            : 0x03 (String Descriptor 3)
+ Language 0x0409         : "012345"
+bNumConfigurations       : 0x01 (1 Configuration)
+Data (HexDump)           : 12 01 00 02 00 00 00 40 03 04 10 60 00 07 01 02   .......@...`....
+                           03 01                                             ..
+
+    ------------------ Configuration Descriptor -------------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x02 (Configuration Descriptor)
+wTotalLength             : 0x0037 (55 bytes)
+bNumInterfaces           : 0x02 (2 Interfaces)
+bConfigurationValue      : 0x01 (Configuration 1)
+iConfiguration           : 0x00 (No String Descriptor)
+bmAttributes             : 0x80
+ D7: Reserved, set 1     : 0x01
+ D6: Self Powered        : 0x00 (no)
+ D5: Remote Wakeup       : 0x00 (no)
+ D4..0: Reserved, set 0  : 0x00
+MaxPower                 : 0x32 (100 mA)
+Data (HexDump)           : 09 02 37 00 02 01 00 80 32 09 04 00 00 02 FF FF   ..7.....2.......
+                           FF 02 07 05 81 02 00 02 00 07 05 02 02 00 02 00   ................
+                           09 04 01 00 02 FF FF FF 02 07 05 83 02 00 02 00   ................
+                           07 05 04 02 00 02 00                              .......
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x00
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0xFF
+bInterfaceProtocol       : 0xFF
+iInterface               : 0x02 (String Descriptor 2)
+ Language 0x0409         : "rev1a_22"
+Data (HexDump)           : 09 04 00 00 02 FF FF FF 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x81 (Direction=IN EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 81 02 00 02 00                              .......
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x02 (Direction=OUT EndpointID=2)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 02 02 00 02 00                              .......
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x01
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0xFF
+bInterfaceProtocol       : 0xFF
+iInterface               : 0x02 (String Descriptor 2)
+ Language 0x0409         : "rev1a_22"
+Data (HexDump)           : 09 04 01 00 02 FF FF FF 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x83 (Direction=IN EndpointID=3)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 83 02 00 02 00                              .......
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x04 (Direction=OUT EndpointID=4)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 04 02 00 02 00                              .......
+
+    ----------------- Device Qualifier Descriptor -----------------
+bLength                  : 0x0A (10 bytes)
+bDescriptorType          : 0x06 (Device_qualifier Descriptor)
+bcdUSB                   : 0x200 (USB Version 2.00)
+bDeviceClass             : 0x00 (defined by the interface descriptors)
+bDeviceSubClass          : 0x00
+bDeviceProtocol          : 0x00
+bMaxPacketSize0          : 0x40 (64 Bytes)
+bNumConfigurations       : 0x01 (1 other-speed configuration)
+bReserved                : 0x00
+
+    ------------ Other Speed Configuration Descriptor -------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x07 (Other_speed_configuration Descriptor)
+wTotalLength             : 0x0037 (55 bytes)
+bNumInterfaces           : 0x02 (2 Interfaces)
+bConfigurationValue      : 0x01 (Configuration 1)
+iConfiguration           : 0x00 (No String Descriptor)
+bmAttributes             : 0x80
+ D7: Reserved, set 1     : 0x01
+ D6: Self Powered        : 0x00 (no)
+ D5: Remote Wakeup       : 0x00 (no)
+ D4..0: Reserved, set 0  : 0x00
+MaxPower                 : 0x32 (100 mA)
+Data (HexDump)           : 09 07 37 00 02 01 00 80 32 09 04 00 00 02 FF FF   ..7.....2.......
+                           FF 02 07 05 81 02 40 00 00 07 05 02 02 40 00 00   ......@......@..
+                           09 04 01 00 02 FF FF FF 02 07 05 83 02 40 00 00   .............@..
+                           07 05 04 02 40 00 00                              ....@..
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x00
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0xFF
+bInterfaceProtocol       : 0xFF
+iInterface               : 0x02 (String Descriptor 2)
+ Language 0x0409         : "rev1a_22"
+Data (HexDump)           : 09 04 00 00 02 FF FF FF 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x81 (Direction=IN EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (max 64 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 81 02 40 00 00                              ....@..
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x02 (Direction=OUT EndpointID=2)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (max 64 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 02 02 40 00 00                              ....@..
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x01
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0xFF
+bInterfaceProtocol       : 0xFF
+iInterface               : 0x02 (String Descriptor 2)
+ Language 0x0409         : "rev1a_22"
+Data (HexDump)           : 09 04 01 00 02 FF FF FF 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x83 (Direction=IN EndpointID=3)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (max 64 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 83 02 40 00 00                              ....@..
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x04 (Direction=OUT EndpointID=4)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (max 64 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 04 02 40 00 00                              ....@..
+
+      -------------------- String Descriptors -------------------
+             ------ String Descriptor 0 ------
+bLength                  : 0x04 (4 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language ID[0]           : 0x0409 (English - United States)
+Data (HexDump)           : 04 03 09 04                                       ....
+             ------ String Descriptor 1 ------
+bLength                  : 0x0E (14 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "Xilinx"
+Data (HexDump)           : 0E 03 58 00 69 00 6C 00 69 00 6E 00 78 00         ..X.i.l.i.n.x.
+             ------ String Descriptor 2 ------
+bLength                  : 0x12 (18 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "rev1a_22"
+Data (HexDump)           : 12 03 72 00 65 00 76 00 31 00 61 00 5F 00 32 00   ..r.e.v.1.a._.2.
+                           32 00                                             2.
+             ------ String Descriptor 3 ------
+bLength                  : 0x0E (14 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "012345"
+Data (HexDump)           : 0E 03 30 00 31 00 32 00 33 00 34 00 35 00         ..0.1.2.3.4.5.

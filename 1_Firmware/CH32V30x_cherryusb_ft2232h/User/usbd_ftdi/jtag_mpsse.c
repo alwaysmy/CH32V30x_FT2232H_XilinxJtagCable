@@ -161,7 +161,7 @@ static uint8_t m_buf[4];
 
 int (*jtag_trans_func)(int data, int bcnt, int delay);
 
-int jtag_delay_value = 1;
+int jtag_delay_value = 0;
 
 // freq = 6M/(1+div);
 // div:  0: 6M

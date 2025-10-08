@@ -15,40 +15,27 @@
 #ifndef NULL
 #define NULL ((void*)0)
 #endif
-typedef struct
-{
-	uint32_t CTLR;
-	uint32_t SR;
-	uint32_t CNTL;
-	uint32_t CNTH;
-	uint32_t CMPLR;
-	uint32_t CMPHR;
-}SYSTICK_REGS;
+// typedef struct
+// {
+// 	uint32_t CTLR;
+// 	uint32_t SR;
+// 	uint32_t CNTL;
+// 	uint32_t CNTH;
+// 	uint32_t CMPLR;
+// 	uint32_t CMPHR;
+// }SYSTICK_REGS;
 
-#define SYSTICK ((volatile SYSTICK_REGS*) 0xe000f000)
-typedef struct
-{
-	uint32_t ECR;
-	uint32_t PCFR1;
-	uint32_t EXTICR[4];
-	uint32_t unuse_18;
-	uint32_t PCFR2;
-}AFIO_REGS;
-typedef struct
-{
-	uint32_t CFGLR;
-	uint32_t CFGHR;
-	uint32_t INDR;
-	uint32_t OUTDR;
-	uint32_t BSHR;
-	uint32_t BCR;
-	uint32_t LCKR;
-}GPIO_REGS;
-#define GPIOAR ((volatile GPIO_REGS*) 0x40010800)
-#define GPIOBR ((volatile GPIO_REGS*) 0x40010c00)
-#define GPIOCR ((volatile GPIO_REGS*) 0x40011000)
-#define GPIODR ((volatile GPIO_REGS*) 0x40011400)
-#define GPIOER ((volatile GPIO_REGS*) 0x40011800)
+// #define SYSTICK ((volatile SYSTICK_REGS*) 0xe000f000)
+// typedef struct
+// {
+// 	uint32_t ECR;
+// 	uint32_t PCFR1;
+// 	uint32_t EXTICR[4];
+// 	uint32_t unuse_18;
+// 	uint32_t PCFR2;
+// }AFIO_REGS;
+
+
 typedef struct
 {
 	uint32_t STATR;
@@ -88,17 +75,34 @@ typedef struct
 /******************************************************************************/
 
 
-void system_init(void);
 
+
+
+/* Global define */
 #define TIMER_HZ (SYSCLK_FREQ/8)
+
+/*系统计数状态寄存器*/ //就一个
+#define STK_SR_CNTIF (1) //BIT0 ，1为up cnt达到了比较值或者down cnt达到了0
+/*系统计数控制寄存器*/		
+#define STK_CTLR_SWIE (1<<31) //BIT31,1开软件触发中断，需要软件清0
+#define STK_CTLR_INIT (1<<5) //BIT5，计数器值更新，up cnt时候更新为0，down cnt计数的时候更新为比较值
+#define STK_CTLR_MODE (1<<4) //BIT4，1为向下计数，0为up cnt
+#define STK_CTLR_STRE (1<<3) //BIT3,比较值自动重载，0：向上到比较值后继续向上（就是不管），向下到0重新到最大值；1：向上计数到比较值归零，向下计数到0后归比较值
+#define STK_CTLR_STCLK (1<<2) //BIT2,选择时钟，0为HCLK/8 ，1为HCLK
+#define STK_CTLR_STIE (1<<1) //BIT1,1开启计数器中断
+#define STK_CTLR_STE (1) //BIT0,1开启Systick
+
+
+
 extern u32 time_ms;
 
+void system_init(void);
 u64 get_mcycle(void);
 void timer_init(void);
 void reset_timer(void);
-u32 get_timer(void);
-void udelay(int us);
-void mdelay(int ms);
+// u64 get_timer(void);
+// void udelay(u32 us);
+// void mdelay(u32 ms);
 
 
 void int_priorit(int id, int priorit);

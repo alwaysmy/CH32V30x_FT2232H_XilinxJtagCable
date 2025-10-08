@@ -13,7 +13,7 @@
 #define __CH32V30x_IT_H
 
 #include "debug.h"
-
+extern void EXTI0_IRQHandler(void);
 
 #endif /* __CH32V30x_IT_H */
 

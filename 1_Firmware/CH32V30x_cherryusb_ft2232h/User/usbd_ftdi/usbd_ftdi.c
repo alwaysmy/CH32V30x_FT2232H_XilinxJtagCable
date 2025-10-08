@@ -10,9 +10,27 @@
 #define FIXED_FTDI_TIMER 16 //固定设计16ms超时
 /*************************************************************************************/
 #define USBD_VID           0x0403
-#define USBD_PID           FT2232H_PID
 #define USBD_MAX_POWER     100
+#if (FTDI_DEV == FT2232H)
+#define USBD_PID           FT2232H_PID
 #define USBD_BCDD		   FT2232H_BCDD	
+#elif (FTDI_DEV == FT232H)
+#define USBD_PID           FT232H_PID
+#define USBD_BCDD		   FT232H_BCDD	
+#endif
+
+#if (EEPROM == EEPROM_93C46)
+#define EEPROM_WORD_LEN 0x40 //93c56是0x80,93c46是0x40,93cc66是0x100,高的可以直接兼容低的
+#elif  (EEPROM == EEPROM_93C56)
+#define EEPROM_WORD_LEN 0x80 //93c56是0x80,93c46是0x40,93cc66是0x100,高的可以直接兼容低的
+#elif (EEPROM == EEPROM_93C66)
+#define EEPROM_WORD_LEN 0x100 //93c56是0x80,93c46是0x40,93cc66是0x100,高的可以直接兼容低的
+#else
+#define EEPROM_WORD_LEN 0x100 //93c56是0x80,93c46是0x40,93cc66是0x100,高的可以直接兼容低的
+#endif
+// #define EEPROM_WORD_LEN 0x40
+// #define EEPROM_WORD_LEN 0x100
+
 // #define USBD_LANGID_STRING 1033
 
 /* 注意: FTDI的驱动要求in与out端点号不能是同一个。 */
@@ -31,7 +49,13 @@
 
 
 #define USB_CONFIG_SIZE (9 + JTAG_INTERFACE_SIZE + UART_INTERFACE_SIZE)
-#define INTF_NUM        2
+#if FTDI_DEV==FT232H
+	//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+	#define INTF_NUM        1
+#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
+	#define INTF_NUM        2
+#endif
+
 
 // #define USB_PACKET_SIZE CONFIG_USBDEV_MSC_MAX_BUFSIZE
 
@@ -53,16 +77,21 @@ static const uint8_t config_descriptor[] = {
     // USB_CONFIG_DESCRIPTOR_INIT(USB_CONFIG_SIZE, 0x02, 0x01, USB_CONFIG_BUS_POWERED, USBD_MAX_POWER),
     // CDC_ACM_DESCRIPTOR_INIT(0x00, CDC_INT_EP, CDC_OUT_EP, CDC_IN_EP, CDC_MAX_MPS, 0x02)
 	USB_CONFIG_DESCRIPTOR_INIT(USB_CONFIG_SIZE, INTF_NUM, 1, USB_CONFIG_BUS_POWERED, USBD_MAX_POWER),
+	// USB_CONFIG_DESCRIPTOR_INIT(USB_CONFIG_SIZE, 1, 1, USB_CONFIG_BUS_POWERED, USBD_MAX_POWER),
 
  	/* Interface 0 : JTAG */
 	USB_INTERFACE_DESCRIPTOR_INIT(JTAG_INTF, 0, 2, 0xFF, 0xFF, 0xFF, 2),
 	USB_ENDPOINT_DESCRIPTOR_INIT(JTAG_IN_EP,  USB_ENDPOINT_TYPE_BULK, USB_PACKET_SIZE, 0x00),
-	USB_ENDPOINT_DESCRIPTOR_INIT(JTAG_OUT_EP, USB_ENDPOINT_TYPE_BULK, USB_PACKET_SIZE, 0x00),//这里四个原来端点描述符就不一样，写了0x01,但是bInterval在ft2232上是0
+	USB_ENDPOINT_DESCRIPTOR_INIT(JTAG_OUT_EP, USB_ENDPOINT_TYPE_BULK, USB_PACKET_SIZE, 0x00),//这里四个原来端点描述符就不一样，写了0x01,但是bInterval在ft2232上是0，这里照抄了
 
+	#if FTDI_DEV==FT232H
+		//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+	#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
 	/* Interface 1 : UART */
 	USB_INTERFACE_DESCRIPTOR_INIT(UART_INTF, 0, 2, 0xFF, 0xFF, 0xFF, 4),
 	USB_ENDPOINT_DESCRIPTOR_INIT(UART_IN_EP,  USB_ENDPOINT_TYPE_BULK, USB_PACKET_SIZE, 0x00),
 	USB_ENDPOINT_DESCRIPTOR_INIT(UART_OUT_EP, USB_ENDPOINT_TYPE_BULK, USB_PACKET_SIZE, 0x00)
+	#endif
 
 };
 
@@ -589,29 +618,30 @@ void usb_dc_user_init(uint8_t busid, uintptr_t reg_base)
 #ifdef CONFIG_USBDEV_ADVANCE_DESC
     usbd_desc_register(busid, &FTlink_descriptor);
 #else
-    usbd_desc_register(busid, cdc_descriptor);
+    // usbd_desc_register(busid, cdc_descriptor);
 #endif
 
-
-#if 1
-	// 这里只使用JTAG功能，不使用串口。
-
+	//添加自定义的interface和端点
 	// usbd_add_interface(busid, &jtag_intf);
 	usbd_add_interface(busid,usbd_ftdi_init_intf(0,&jtag_intf));
     usbd_add_endpoint(busid, &jtag_out_ep);
     usbd_add_endpoint(busid, &jtag_in_ep);
     
-#else
-	cdcuart_init(&cdc_uarts[0]);
-	int_enable(DMA1_Channel3_IRQn);
-	int_enable(USART3_IRQn);
-#endif
 
-	cdcuart_init(0,&cdc_uarts[0]);//原来这个索引看起来不对啊
+
+#if FTDI_DEV==FT232H
+	//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
+	#if 0
+	cdcuart_init(0,&cdc_uarts[1]);
 	// int_enable(DMA1_Channel5_IRQn);
 	// int_enable(USART1_IRQn); //TODO:串口先不管了
-
-	// usbd_initialize();//旧的
+	#else
+	cdcuart_init(0,&cdc_uarts[0]);
+	// int_enable(DMA1_Channel3_IRQn);
+	// int_enable(USART3_IRQn);
+	#endif
+#endif
 	usbd_initialize(busid, reg_base, usbd_event_handler);
 }
 

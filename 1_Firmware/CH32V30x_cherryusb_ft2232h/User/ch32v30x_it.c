@@ -13,6 +13,8 @@
 
 void NMI_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 void HardFault_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
+void EXTI9_5_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
+// void EXTI9_5_IRQHandler(void) __attribute__((interrupt));// 会保存所有临时寄存器和浮点寄存器
 
 /*********************************************************************
  * @fn      NMI_Handler

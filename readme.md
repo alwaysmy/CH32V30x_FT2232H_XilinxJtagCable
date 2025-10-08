@@ -22,9 +22,13 @@ windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash�
 
 # 如何修改
 
+## 切换设备
+
+部分工具使用不同的INTERFACE来执行下载，所以可能有切换的需求，在ftdi_dev_cfg.h中按照宏定义切换即可。这里FT4232H没有测试过，相应的没有读取过FT4232H对应的EEPROM，如有需要自己用FT_Prog读取一下。
+
 ## 引脚
 
-在MountRiver Studio II中打开，修改引脚对应的宏定义即可。
+在MountRiver Studio II中打开ftdi.h，修改引脚对应的宏定义即可，现在的代码只允许TMS和其他三个IO不在一个GPIO端口上，TCK TDI TDO必须在一个GPIO端口上，可以改但是会变慢一点，感觉没啥必要就算了。
 
 代码中预设了两组引脚，一组是SPI2,一组是SPI3,后者兼容CH347的JTAG引脚，串口Debug TX为UART3，通过宏定义切换即可。
 
@@ -40,7 +44,7 @@ windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash�
 
 之前遇到过Vivado中，烧录Flash之后，弹出Boot From Configuration Memory Device错误，但是新的代码没遇到过了。。。而且实际上不影响使用。
 
-对于易灵思Efinity Programmer：对于FT2232H，易灵思使用Interface1,这里没有实现，可以自行复制粘贴实现，或者替换实现为FT232H,只有一个通道所以不存在这个问题。后期考虑修改。
+对于易灵思Efinity Programmer：对于FT2232H，易灵思使用Interface1,这里没有实现，可以自行复制粘贴实现，或者替换实现为FT232H,只有一个通道所以不存在这个问题,代码中已经实现了模拟为FT232H
 
 后期完善代码，部分字节发送的IO操作。
 
