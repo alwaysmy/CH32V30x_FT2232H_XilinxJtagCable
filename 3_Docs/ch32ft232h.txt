@@ -1,0 +1,77 @@
+    ---------------------- Device Descriptor ----------------------
+bLength                  : 0x12 (18 bytes)
+bDescriptorType          : 0x01 (Device Descriptor)
+bcdUSB                   : 0x200 (USB Version 2.00)
+bDeviceClass             : 0x00 (defined by the interface descriptors)
+bDeviceSubClass          : 0x00
+bDeviceProtocol          : 0x00
+bMaxPacketSize0          : 0x40 (64 bytes)
+idVendor                 : 0x0403 (Future Technology Devices International Limited)
+idProduct                : 0x6014
+bcdDevice                : 0x0900
+iManufacturer            : 0x01 (String Descriptor 1)
+iProduct                 : 0x02 (String Descriptor 2)
+iSerialNumber            : 0x03 (String Descriptor 3)
+bNumConfigurations       : 0x01 (1 Configuration)
+Data (HexDump)           : 12 01 00 02 00 00 00 40 03 04 14 60 00 09 01 02   .......@...`....
+                           03 01                                             ..
+
+    ------------------ Configuration Descriptor -------------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x02 (Configuration Descriptor)
+wTotalLength             : 0x0037 (55 bytes)
+bNumInterfaces           : 0x01 (1 Interface)
+bConfigurationValue      : 0x01 (Configuration 1)
+iConfiguration           : 0x00 (No String Descriptor)
+bmAttributes             : 0x80
+ D7: Reserved, set 1     : 0x01
+ D6: Self Powered        : 0x00 (no)
+ D5: Remote Wakeup       : 0x00 (no)
+ D4..0: Reserved, set 0  : 0x00
+MaxPower                 : 0x32 (100 mA)
+Data (HexDump)           : 09 02 37 00 01 01 00 80 32 09 04 00 00 02 FF FF   ..7.....2.......
+                           FF 02 07 05 81 02 00 02 00 07 05 02 02 00 02 00   ................
+                           12 01 00 02 00 00 00 40 03 04 14 60 00 09 01 02   .......@...`....
+                           03 01 00 00 0A 06 00                              .......
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x00
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0xFF
+bInterfaceProtocol       : 0xFF
+iInterface               : 0x02 (String Descriptor 2)
+Data (HexDump)           : 09 04 00 00 02 FF FF FF 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x81 (Direction=IN EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 81 02 00 02 00                              .......
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x02 (Direction=OUT EndpointID=2)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0200 (max 512 bytes)
+bInterval                : 0x00 (never NAKs)
+Data (HexDump)           : 07 05 02 02 00 02 00                              .......
+
+        ----------------- Unknown Descriptor ------------------
+bLength                  : 0x12 (18 bytes)
+bDescriptorType          : 0x01
+Data (HexDump)           : 12 01 00 02 00 00 00 40 03 04 14 60 00 09 01 02 
+                           03 01 
+
+    ----------------- Device Qualifier Descriptor -----------------
+Error                    : ERROR_GEN_FAILURE
+
+      -------------------- String Descriptors -------------------
+String descriptors are not available  (because the device has problem code CM_PROB_FAILED_START)
