@@ -48,12 +48,14 @@
 #define UART_INTERFACE_SIZE (9 + 7 + 7)
 
 
-#define USB_CONFIG_SIZE (9 + JTAG_INTERFACE_SIZE + UART_INTERFACE_SIZE)
+
 #if FTDI_DEV==FT232H
 	//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
 	#define INTF_NUM        1
+	#define USB_CONFIG_SIZE (9 + JTAG_INTERFACE_SIZE)
 #elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
 	#define INTF_NUM        2
+	#define USB_CONFIG_SIZE (9 + JTAG_INTERFACE_SIZE + UART_INTERFACE_SIZE)
 #endif
 
 
@@ -116,7 +118,12 @@ static const char *string_descriptors[] = {
     "Xilinx",                  /* Manufacturer */
     "FTLINK JTAG",         		/* Product */
     "2025100501",                 /* Serial Number */
+	#if FTDI_DEV==FT232H
+		
+	#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
 	"FTLINK UART",				/* Product */
+	#endif
+
 };
 /*--------------------------用户定义描述符结束-------------------------------------------------------------*/
 static const uint8_t *device_descriptor_callback(uint8_t speed)
@@ -524,7 +531,7 @@ int usbd_ftdi_vendor_handler(uint8_t busid,struct usb_setup_packet *setup, uint8
 	return 0;
 }
 
-
+//TODO:event handler需要调整
 static void usbd_event_handler(uint8_t busid, uint8_t event)
 {
 	USB_LOG_INFO("USBD Event: %d\n", event);
@@ -532,9 +539,13 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
 	case USBD_EVENT_RESET:
 		ftdevs[0].timeout = 0;
 		ftdevs[0].latency_timer = 16;
+		#if FTDI_DEV==FT232H
+		//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+		#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
 		ftdevs[1].timeout = 0;
 		ftdevs[1].latency_timer = 16;
 		cdcuart_reset(&cdc_uarts[1]);
+		#endif
 		break;
 	case USBD_EVENT_CONNECTED:
 		break;
@@ -545,10 +556,14 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
 	case USBD_EVENT_SUSPEND:
 		break;
 	case USBD_EVENT_CONFIGURED:
-		cdc_recv_start(0,&cdc_uarts[1]);
-		cdc_send_startup(0,&cdc_uarts[1]);
 		jtag_out_start(0);
 		jtag_in_start();
+		#if FTDI_DEV==FT232H
+		//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+		#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
+			cdc_recv_start(0,&cdc_uarts[0]);
+			cdc_send_startup(0,&cdc_uarts[0]);
+		#endif
 		break;
 	case USBD_EVENT_SET_REMOTE_WAKEUP:
 		break;
@@ -609,8 +624,13 @@ void usb_dc_user_init(uint8_t busid, uintptr_t reg_base)
 {
 	ftdevs[0].timeout = 0;
 	ftdevs[0].latency_timer = 16;
-	ftdevs[1].timeout = 0;
-	ftdevs[1].latency_timer = 16;
+
+	#if FTDI_DEV==FT232H
+	//TODO:我记得之前可以让驱动识别FT232的同时加第二个interface的，现在会报错不匹配，先关掉吧,应该也不影响用2232开另一个端点
+	#elif FTDI_DEV==FT2232H||FTDI_DEV==FT4232H
+		ftdevs[1].timeout = 0;
+		ftdevs[1].latency_timer = 16;
+	#endif
 
 	jtag_init();
 
