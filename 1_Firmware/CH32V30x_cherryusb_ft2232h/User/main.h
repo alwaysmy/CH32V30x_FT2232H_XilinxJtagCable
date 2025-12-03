@@ -116,8 +116,8 @@ void _puts(char *str);
 
 
 void gpio_mode(int group, int bit, int mode, int pullup);
-void gpio_set(int group, int bit, int val);
-int  gpio_get(int group, int bit);
+// void gpio_set(int group, int bit, int val);
+// int  gpio_get(int group, int bit);
 
 
 /******************************************************************************/

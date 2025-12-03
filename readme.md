@@ -12,13 +12,19 @@
 
 # 功能兼容性
 
-windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash、ILA使用测试通过。
+windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash、ILA\VIO使用测试通过。
+
+注：VIO能用，但是大部分时候有点慢，有时候下面会报错没获取到状态，但是能用。。。，在Vivado2018.3.1中测试
 
 这里模拟的EEPROM为93C46, 查阅到有博客说在Windows下Vivado识别没有问题，Linux下则不行，模拟为93C56则都可以兼容，代码中提供了内容，去掉注释即可。也可以按照后面修改自行修改。
 
 通过Zadig替换为WinUSB的驱动之后，OpenOCD可以下载比特流。
 
-其他厂商兼容性见致谢中参考项目内说明。
+# 厂商兼容性
+
+其他厂商兼容性见致谢中参考项目内说明，我没有测过，不确定我的改动会不会导致出现问题。
+
+易灵思目前官方工具不支持，连不上，还没看出来哪里不对，后面修。
 
 # 如何修改
 
@@ -42,9 +48,11 @@ windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash�
 
 # Buglist和完善
 
-之前遇到过Vivado中，烧录Flash之后，弹出Boot From Configuration Memory Device错误，但是新的代码没遇到过了。。。而且实际上不影响使用。
+之前遇到过Vivado中，烧录Flash之后，弹出Boot From Configuration Memory Device错误，但是新的代码没遇到过了。。。后来也没遇到过，作为记录。而且实际上不影响使用。
 
-对于易灵思Efinity Programmer：对于FT2232H，易灵思使用Interface1,这里没有实现，可以自行复制粘贴实现，或者替换实现为FT232H,只有一个通道所以不存在这个问题,代码中已经实现了模拟为FT232H
+Vivado中VIO有时候会在Tcl Console中报错，但是不影响使用，功能正常。
+
+对于易灵思Efinity Programmer：对于FT2232H，易灵思使用Interface1,这里没有实现，可以自行复制粘贴实现，或者替换实现为FT232H,只有一个通道所以不存在这个问题,代码中已经实现了模拟为FT232H，好像易灵思有个配置文件也可以修改使用的通道，我还没试过。。
 
 后期完善代码，部分字节发送的IO操作。
 
@@ -56,7 +64,7 @@ windows10 vivado 2018.3 vivado 2023.1中测试，下载比特流、烧录Flash�
 
 本项目参考于[GitHub - tpunix/FT-LINK: FT2232D emulator](https://github.com/tpunix/FT-LINK?tab=readme-ov-file) 以及 [GitHub - sipeed/RV-Debugger-BL702](https://github.com/sipeed/RV-Debugger-BL702)，
 
-原项目完成了大部分工作，这里表示感谢。
+原项目已经完成了大部分工作，给了我很大启发，这里表示感谢。
 
 
 

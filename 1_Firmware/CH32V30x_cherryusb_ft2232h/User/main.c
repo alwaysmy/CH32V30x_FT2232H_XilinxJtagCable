@@ -1,65 +1,37 @@
-/********************************** (C) COPYRIGHT *******************************
+/*****************************************************************************
 * File Name          : main.c
-* Author             : WCH
-* Version            : V1.0.0
-* Date               : 2021/06/06
+* Author             : xxx
+* Version            : V0.1.1
+* Date               : 2025/12/03
 * Description        : Main program body.
-*********************************************************************************
-* Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
-* Attention: This software (modified or not) and binary are used for 
-* microcontroller manufactured by Nanjing Qinheng Microelectronics.
 *******************************************************************************/
-
 /*
  *@Note
  USART Print debugging routine:
  USART1_Tx(PA9).
  This example demonstrates using USART1(PA9) as a print debug port output.
-
 */
-
-#include "debug.h"
-#include "ftdi.h"
-
 #include "ch32v30x_conf.h"
 #include "ch32v30x_it.h"
 #include "usb_config.h"
 #include "main.h"
+#include "debug.h"
+
+#include "ftdi.h"
 
 /* Global typedef */
 
 /* Global define */
-
-u8 btn_Flag = 0;
 #define PIN_LED_OUT( d )          if( d ) GPIOC->BSHR = GPIO_Pin_8; else GPIOC->BCR = GPIO_Pin_8; 
-/******************************************************************************/
-
-
-// u64 get_mcycle(void)
-// {
-// 	u32 h0, h1, low;
-
-// 	do{
-// 		h0  = read_csr(mcycleh);
-// 		low = read_csr(mcycle);
-// 		h1  = read_csr(mcycleh);
-// 	}while(h0!=h1);
-
-// 	return ((u64)h0<<32) | low;
-// }
-
-
-// /******************************************************************************/
-
+/* Global Variable */
+u8 btn_Flag = 0;
 u32 time_ms = 0;
-static u64 last_tcnt;
 
+static u64 last_tcnt;
 void timer_init(void)
 {
 	reset_timer();
 }
-
-
 void reset_timer(void)
 {
 	SysTick->SR &=~STK_SR_CNTIF;//计数器状态清空
@@ -71,33 +43,11 @@ void reset_timer(void)
 	time_ms = 0;
 	last_tcnt = 0;
 }
-
-
 static inline u64 get_timer(void)
 {
 	// return SYSTICK->CNTL;
 	return SysTick->CNT;
 }
-
-//
-// static inline void udelay(u32 us)
-// {
-// 	// reset_timer();
-// 	// u64 end = get_timer() + us*(TIMER_HZ/1000000);
-// 	// while(get_timer()<end);
-// 	Delay_Us(us);
-// }
-
-
-// static inline void mdelay(u32 ms)
-// {
-// 	// reset_timer();
-// 	// u64 end = get_timer() + ms*(TIMER_HZ/1000);
-// 	// while(get_timer()<end);
-// 	Delay_Ms(ms);
-
-// }
-
 
 void soft_timer(void)
 {
@@ -114,37 +64,7 @@ void soft_timer(void)
 		last_tcnt += ms*(TIMER_HZ/1000);
 	}
 }
-
-
 /******************************************************************************/
-
-
-
-
-/******************************************************************************/
-
-
-void gpio_set(int group, int bit, int val)
-{
-	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
-	int mask = 1<<bit;
-
-	if(val)
-		gpio->BSHR = mask;
-	else
-		gpio->BCR = mask;
-}
-
-
-int gpio_get(int group, int bit)
-{
-	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
-	int mask = 1<<bit;
-
-	return (gpio->INDR & mask) ? 1: 0;
-}
-
-
 void gpio_mode(int group, int bit, int mode, int ioval)
 {
 	int mreg;
@@ -227,9 +147,7 @@ void int_priority(int id, int p)
 
 
 /******************************************************************************/
-
-
-
+// CherryUSB的USB底层初始化函数
 void usb_dc_low_level_init(void)
 {
     RCC_USBCLK48MConfig(RCC_USBCLK48MCLKSource_USBPHY);
@@ -244,10 +162,9 @@ void usb_dc_low_level_init(void)
     // RCC_AHBPeriphClockCmd(RCC_AHBPeriph_OTG_FS, ENABLE);
     // // EXTEN->EXTEN_CTR |= EXTEN_USBD_PU_EN;
     // NVIC_EnableIRQ(OTG_FS_IRQn);
-
     Delay_Us(100);
 }
-/* Global Variable */
+
 
 uint8_t RCC_Configuration( void )
 {
@@ -300,7 +217,7 @@ void BtnInit()
 
     /* GPIO In Configuration: PA8) */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //启用上拉（注意，这根线接在FPGA上的时候，FPGA需要配置为输入或者修改Bitstream设置，空闲IO配置为上拉（默认是下拉））
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* GPIOA ----> EXTI_Line0 */
@@ -321,6 +238,7 @@ void Periph_Init()
 {
     JTGA_IO_Init();
 }
+
 void btnHandler(u8 btnStatus)
 {
 	if(btnStatus)
@@ -349,21 +267,22 @@ int main(void)
 	LEDINIT();
 	BtnInit();
     /**SDIPRINT仅限调试的时候使用，如果有打印，下电后不重新接调试器似乎会阻塞**/
-    #if (SDI_PRINT == SDI_PR_OPEN) 
-        SDI_Printf_Enable();//上位机波特率无所谓
-    #else
-        USART_Printf_Init(460800);
-    #endif
+	#ifdef DEBUGPRINT_ENABLE
+		#if (SDI_PRINT == SDI_PR_OPEN) 
+			SDI_Printf_Enable();//上位机波特率无所谓
+		#else
+			USART_Printf_Init(460800);
+		#endif
+	#endif
+	
 	DEBUG_PRINT("SysClk:%d\r\n",SystemCoreClock);
 	DEBUG_PRINT( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
 	PIN_LED_OUT(1);
-
 	usb_dc_user_init(0,0);
 	reset_timer();
 	while(1){
 		soft_timer();
 		ftdi_timer_handle();//time_ms>=ftdevs[0].timeout才会发送
-		// WFI(); // WFI会影响正在工作的外设.
 		jtag_handle();
 		btnHandler(btn_Flag);
 	}
@@ -387,10 +306,62 @@ void EXTI9_5_IRQHandler(void)
             // 例如：设置标志位、控制LED等
 			btn_Flag = !btn_Flag;
         }
-        
-        // // 清除中断标志位
-		
+        //清除中断标志位
         EXTI_ClearITPendingBit(EXTI_Line8);
     }
 
 }
+
+
+/******************************************************************************/
+// u64 get_mcycle(void)
+// {
+// 	u32 h0, h1, low;
+
+// 	do{
+// 		h0  = read_csr(mcycleh);
+// 		low = read_csr(mcycle);
+// 		h1  = read_csr(mcycleh);
+// 	}while(h0!=h1);
+
+// 	return ((u64)h0<<32) | low;
+// }
+
+
+/******************************************************************************/
+//
+// static inline void udelay(u32 us)
+// {
+// 	// reset_timer();
+// 	// u64 end = get_timer() + us*(TIMER_HZ/1000000);
+// 	// while(get_timer()<end);
+// 	Delay_Us(us);
+// }
+// static inline void mdelay(u32 ms)
+// {
+// 	// reset_timer();
+// 	// u64 end = get_timer() + ms*(TIMER_HZ/1000);
+// 	// while(get_timer()<end);
+// 	Delay_Ms(ms);
+
+// }
+/******************************************************************************/
+// void gpio_set(int group, int bit, int val)
+// {
+// 	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
+// 	int mask = 1<<bit;
+
+// 	if(val)
+// 		gpio->BSHR = mask;
+// 	else
+// 		gpio->BCR = mask;
+// }
+
+
+// int gpio_get(int group, int bit)
+// {
+// 	volatile GPIO_TypeDef *gpio = (GPIO_TypeDef*)(GPIOA_BASE+group*0x0400);
+// 	int mask = 1<<bit;
+
+// 	return (gpio->INDR & mask) ? 1: 0;
+// }
