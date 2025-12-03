@@ -72,7 +72,7 @@ extern u8 EP2_Rx_Buffer[USBD_DATA_SIZE+4];
 u8 RecData_Deal(void);
 u8 Jmp_APP_flag(void);
 void GPIO_Cfg_init(void);
-u8 PA0_Check(void);
+u8 BTN_Check(void);
 
 void USART3_CFG(u32 baudrate);
 

@@ -34,10 +34,10 @@ void timer_init(void)
 }
 void reset_timer(void)
 {
-	SysTick->SR &=~STK_SR_CNTIF;//������״̬���
-	// SysTick->CMP = 0;//�Ƚϼ����������ﲻ��
-	// SysTick->CNT = 0;// ����ֵ���㣬���ã���CTLR�����
-	SysTick->CTLR = STK_CTLR_INIT|STK_CTLR_STE;//��գ�ʹ��,����Ϊϵͳʱ��8��Ƶ
+	SysTick->SR &=~STK_SR_CNTIF;//计数器状态清空
+	// SysTick->CMP = 0;//比较计数器，这里不管
+	// SysTick->CNT = 0;// 计数值归零，不用，用CTLR来清空
+	SysTick->CTLR = STK_CTLR_INIT|STK_CTLR_STE;//清空，使能,设置为系统时钟8分频
 	// SYSTICK->CTLR = 0x20;
 	// SYSTICK->CTLR = 0x01;
 	time_ms = 0;
@@ -115,9 +115,9 @@ void gpio_mode(int group, int bit, int mode, int ioval)
 // };
 
 
-// __attribute__((interrupt)) �ᱣ��������ʱ�Ĵ����͸���Ĵ���
-// __attribute__((interrupt("WCH-Interrupt-fast"))) ֻ���渡��Ĵ���
-// ��������Ǹ���Ĵ���, ���Բ�����Щ����. ��������start.S����д��ڣ��ֶ�mret���ء�
+// __attribute__((interrupt)) 会保存所有临时寄存器和浮点寄存器
+// __attribute__((interrupt("WCH-Interrupt-fast"))) 只保存浮点寄存器
+// 如果不考虑浮点寄存器, 可以不用这些属性. 但必须在start.S里面写入口，手动mret返回。
 
 // void HardFault_Handler(void)
 // {
@@ -139,7 +139,7 @@ void int_disable(int id)
     PFIC->IRER[id/32] = 1<<(id&31);
 }
 
-// ���ȼ�: 0-7
+// 优先级: 0-7
 void int_priority(int id, int p)
 {
     PFIC->IPRIOR[id] = p<<5;
@@ -147,7 +147,7 @@ void int_priority(int id, int p)
 
 
 /******************************************************************************/
-// CherryUSB��USB�ײ��ʼ������
+// CherryUSB的USB底层初始化函数
 void usb_dc_low_level_init(void)
 {
     RCC_USBCLK48MConfig(RCC_USBCLK48MCLKSource_USBPHY);
@@ -168,13 +168,13 @@ void usb_dc_low_level_init(void)
 
 uint8_t RCC_Configuration( void )
 {
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_SRAM|RCC_AHBPeriph_DMA2,ENABLE);//SRAM DMA2 DMA1,��֪��ΪɶҪ��sram��ʾ������û�����ٷ�USBתJTAGҲû��
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_SRAM|RCC_AHBPeriph_DMA2,ENABLE);//SRAM DMA2 DMA1,不知道为啥要开sram，示例程序没开，官方USB转JTAG也没开
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE |
 	                        RCC_APB2Periph_USART1|RCC_APB2Periph_TIM1|RCC_APB2Periph_TIM8, ENABLE );
 	/* AFIO clock enable */
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR|RCC_APB1Periph_USART3|RCC_APB1Periph_SPI2|RCC_APB1Periph_UART8, ENABLE );
-    /* �������е�PB3��PB4��Ӧ�뵥Ƭ����JTAG����,���Ա����Ƚ���JTAG���� */
+    /* 由于其中的PB3、PB4对应与单片机的JTAG功能,所以必须先禁用JTAG功能 */
 #if( DEF_DEBUG_FUN_EN == 1 )
     GPIO_PinRemapConfig( GPIO_Remap_SWJ_Disable, ENABLE );
 #endif
@@ -182,15 +182,15 @@ uint8_t RCC_Configuration( void )
 }
 void LEDINIT()
 {
-	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE ); //�����ж���Ҫ��AFIO
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE ); //配置中断需要打开AFIO
 	GPIO_InitTypeDef  GPIO_InitStructure;
-    //RCC�Ѿ�������,���ﲻ�ظ�����
+    //RCC已经开过了,这里不重复开了
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //13 14 10
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
-//TODO:ԭ��ʵ������jtag_setup();����,����SIO_SET_BITMODE_REQUEST:�������һ��,�����滻
+//TODO:原版实现是在jtag_setup();里面,会在SIO_SET_BITMODE_REQUEST:里面调用一次,可以替换
 void JTGA_IO_Init()
 {
     // TCK: 
@@ -198,14 +198,14 @@ void JTGA_IO_Init()
     // TDI: 
     // TDO: 
     GPIO_InitTypeDef  GPIO_InitStructure;
-    //RCC�Ѿ�������,���ﲻ�ظ�����
+    //RCC已经开过了,这里不重复开了
     GPIO_InitStructure.GPIO_Pin = GPIO_TMS|GPIO_TCK|GPIO_TDI; //13 14 10
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(JTAG_GPIOPORT, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin = GPIO_TDO; //13 14 10
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//������������ν,���������,�������ԭ�������
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//上拉下拉无所谓,对面是输出,这里参照原设计上拉
     GPIO_Init(JTAG_GPIOPORT, &GPIO_InitStructure);
 }
 void BtnInit()
@@ -213,11 +213,11 @@ void BtnInit()
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     EXTI_InitTypeDef EXTI_InitStructure = {0};
     NVIC_InitTypeDef NVIC_InitStructure = {0};
-    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE ); //�����ж���Ҫ��AFIO
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE ); //配置中断需要打开AFIO
 
     /* GPIO In Configuration: PA8) */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //����������ע�⣬����߽���FPGA�ϵ�ʱ��FPGA��Ҫ����Ϊ��������޸�Bitstream���ã�����IO����Ϊ������Ĭ������������
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //启用上拉（注意，这根线接在FPGA上的时候，FPGA需要配置为输入或者修改Bitstream设置，空闲IO配置为上拉（默认是下拉））
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* GPIOA ----> EXTI_Line0 */
@@ -251,6 +251,19 @@ void btnHandler(u8 btnStatus)
 	}
 }
 /*********************************************************************
+ * @fn      APP_2_IAP
+ *
+ * @brief   APP_2_IAP program.//在APP中跳转的方式就是调用系统复位从0位置开始启动，那里就是Bootloader,不需要其他的操作。CH32V30x不支持跳转到官方内置Bootrom，只能自己实现bootloader
+ *
+ * @return  none
+ */
+void APP_2_IAP(void)
+{
+    NVIC_SystemReset();
+    while(1){
+    }
+}
+/*********************************************************************
  * @fn      main
  *
  * @brief   Main program.
@@ -266,10 +279,10 @@ int main(void)
     // Periph_Init();
 	LEDINIT();
 	BtnInit();
-    /**SDIPRINT���޵��Ե�ʱ��ʹ�ã�����д�ӡ���µ�����½ӵ������ƺ�������**/
+    /**SDIPRINT仅限调试的时候使用，如果有打印，下电后不重新接调试器似乎会阻塞**/
 	#ifdef DEBUGPRINT_ENABLE
 		#if (SDI_PRINT == SDI_PR_OPEN) 
-			SDI_Printf_Enable();//��λ������������ν
+			SDI_Printf_Enable();//上位机波特率无所谓
 		#else
 			USART_Printf_Init(460800);
 		#endif
@@ -282,30 +295,29 @@ int main(void)
 	reset_timer();
 	while(1){
 		soft_timer();
-		ftdi_timer_handle();//time_ms>=ftdevs[0].timeout�Żᷢ��
+		ftdi_timer_handle();//time_ms>=ftdevs[0].timeout才会发送
 		jtag_handle();
 		btnHandler(btn_Flag);
 	}
 }
 
-// �жϷ����� //TODO:���������⣬����һ���жϾͽ������ˡ�����֪��Ϊɶ
+// 中断服务函数 //TODO:这里有问题，进来一次中断就进不来了。。不知道为啥
 void EXTI9_5_IRQHandler(void)
 {
-    // ����Ƿ���PA8�������ж�
+    // 检查是否是PA8触发的中断
     if(EXTI_GetITStatus(EXTI_Line8) != RESET)
     {
-        //
-        Delay_Ms(1);//��������Ҫ��ϵģ����ں�������
-        
-        // �ٴμ�鰴��״̬��ȷ�ϰ���ȷʵ������
+        Delay_Ms(5);//本来就是要打断的，不在乎阻塞了
+        // 再次检查按键状态，确认按键确实被按下
         if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8) == 0)
         {
-            // �������Ӱ������º�Ĵ�������
-            // ���磺���ñ�־λ������LED��
+            // 这里添加按键按下后的处理代码
+            // 例如：设置标志位、控制LED等
+			APP_2_IAP();
 			btn_Flag = !btn_Flag;
         }
-        //����жϱ�־λ
-        EXTI_ClearITPendingBit(EXTI_Line8);
+        //清除中断标志位
+        EXTI_ClearITPendingBit(EXTI_Line8);//TODO:中断存在BUG,不知道为啥，好像是进了中断就出不去了，但是目前不影响这个跳转IAP的功能。。。
     }
 
 }

@@ -28,7 +28,7 @@ extern u8 End_Flag;
 #define UPGRADE_MODE_COMMAND   0
 #define UPGRADE_MODE_IO        1
 
-#define UPGRADE_MODE   UPGRADE_MODE_IO
+#define UPGRADE_MODE   UPGRADE_MODE_COMMAND
 /*********************************************************************
  * @fn      IAP_2_APP
  *
@@ -80,8 +80,12 @@ int main(void)
 	printf( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
 	printf("IAP\r\n");
 
+    if(BTN_Check() == 0) //按住按钮上电则不跳转，等待程序更新
+    {
+        goto bootloader_cfg;
+    }
 #if UPGRADE_MODE == UPGRADE_MODE_COMMAND
-    if(*(uint32_t*)FLASH_Base  != 0xe339e339 ) //e339e339是wch flash为空的模式，这里判断不为空就直接跳转进去APP程序，但是这里他妈的
+    if(*(uint32_t*)FLASH_Base  != 0xe339e339 ) //e339e339是wch flash为空的模式，这里判断不为空就直接跳转进去APP程序，但是这里他妈的如果你下错了程序，他也会跳转，程序就会G,需要额外的字端来校验
     {
         if(*(uint32_t*)CalAddr != CheckNum)
         {
@@ -90,20 +94,24 @@ int main(void)
         }
     }
 #elif UPGRADE_MODE == UPGRADE_MODE_IO
-    if(PA0_Check() == 0)
+    if(BTN_Check() == 0)
     {
         IAP_2_APP();
         while(1);
     }
 #endif
 
+bootloader_cfg:
+
     USART3_CFG(460800);
     /* USB20 device init */
     USBHS_RCC_Init( );
     USBHS_Device_Init( ENABLE );
     NVIC_EnableIRQ( USBHS_IRQn );
-
     USBFS_Init( );
+
+    while(BTN_Check() == 0);//阻塞，避免按键还没释放就下去了，不然那直接跳转APP了吗。//USB加载叮咚就可以放手了
+
 	while(1)
 	{
         if( USART_GetFlagStatus(USART3, USART_FLAG_RXNE) != RESET){
@@ -113,7 +121,7 @@ int main(void)
         IWDG_ReloadCounter();
 
 // #if UPGRADE_MODE == UPGRADE_MODE_COMMAND
-        if (End_Flag)
+        if (End_Flag||BTN_Check() == 0)
          {
             IAP_2_APP();
             while(1);

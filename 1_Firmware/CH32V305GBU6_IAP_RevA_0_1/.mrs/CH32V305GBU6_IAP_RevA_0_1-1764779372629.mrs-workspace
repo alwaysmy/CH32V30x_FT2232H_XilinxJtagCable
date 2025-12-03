@@ -1,12 +1,11 @@
 {
 	"folders": [
 		{
-			"name": ".mrs",
 			"path": "."
 		},
 		{
-			"name": "CH32V30x_cherryusb_ft2232h",
-			"path": ".."
+			"name": "CH32V305GBU6_IAP_RevA_0_1",
+			"path": "d:\\MyProjects\\2_MyDesigns\\USB3_Artix_GTP\\LiteRevB\\1_MCU_Firmware\\CH32V30x_FT2232H_XilinxJtagCable\\1_Firmware\\CH32V305GBU6_IAP_RevA_0_1"
 		}
 	],
 	"settings": {

@@ -236,7 +236,7 @@ void GPIO_Cfg_init(void)
  * @return  1 - IAP
  *          0 - APP
  */
-u8 PA0_Check(void)
+u8 BTN_Check(void)
 {
     u8 i, cnt=0;
 
