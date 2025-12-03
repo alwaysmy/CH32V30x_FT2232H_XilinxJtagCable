@@ -27,7 +27,7 @@ static uint16_t p_ms = 0;
  */
 void Delay_Init(void)
 {
-    p_us = SystemCoreClock / 8000000;
+    p_us = SystemCoreClock / 8000000; //TODO:这个值对应啥？
     p_ms = (uint16_t)p_us * 1000;
 }
 

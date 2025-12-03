@@ -8,8 +8,8 @@
 /*
  *@Note
  USART Print debugging routine:
- USART1_Tx(PA9).
- This example demonstrates using USART1(PA9) as a print debug port output.
+ USART3_Tx(PB10).
+ This example demonstrates using USART3_Tx(PB10) as a print debug port output.
 */
 #include "ch32v30x_conf.h"
 #include "ch32v30x_it.h"
@@ -274,7 +274,7 @@ int main(void)
 			USART_Printf_Init(460800);
 		#endif
 	#endif
-	
+
 	DEBUG_PRINT("SysClk:%d\r\n",SystemCoreClock);
 	DEBUG_PRINT( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
 	PIN_LED_OUT(1);
@@ -287,8 +287,6 @@ int main(void)
 		btnHandler(btn_Flag);
 	}
 }
-
-
 
 // 中断服务函数 //TODO:这里有问题，进来一次中断就进不来了。。不知道为啥
 void EXTI9_5_IRQHandler(void)

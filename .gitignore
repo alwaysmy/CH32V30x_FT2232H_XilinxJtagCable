@@ -3,3 +3,4 @@
 # *.elf*
 # *.hex
 *.pcapng
+obj/
