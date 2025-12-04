@@ -89,7 +89,8 @@ static int get_gpio(int id)
 	if((TMS_PORT->INDR & (1<<GPIO_TMS))) 
 		val |= 0x08;
 
-	return val|0xd0;//ATTENTION:别问为什么加0xd0,问就是从ft2232上抄的,没这个vivado就报没识别到fpga设备
+	// return val;
+	return val|0xd0; //ATTENTION:别问为什么加0xd0,问就是从ft2232上抄的,没这个vivado就报没识别到fpga设备
 }
 
 /******************************************************************************/
@@ -274,7 +275,7 @@ int jtag_execute(uint8_t *req, int req_size)
 					break;
 				}
 			}
-			else //if((m_cmd&0x80)==0)//TODO:这里的条件判定应该不对,去掉了又会卡死..
+			else 
 			{
 				int type = m_cmd&0x09;
 

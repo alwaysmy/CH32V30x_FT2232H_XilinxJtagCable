@@ -40,8 +40,8 @@
   <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.stopAt" value="handle_reset"/>
   <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.pcRegister" value=""/>
   <stringAttribute key="com.mounriver.debug.gdbjtag.svdPath" value="${eclipse_home}template/wizard/WCH/RISC-V/CH32V305\NoneOS\CH32V305xx.svd"/>
-  <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="obj/CH32V30x_cherryusb_ft2232h.elf"/>
-  <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="CH32V30x_cherryusb_ft2232h"/>
+  <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="obj/CH32V30x_ft2232h_XilinxCable.elf"/>
+  <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="CH32V30x_ft2232h_XilinxCable"/>
   <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
   <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDevice" value="GNU MCU OpenOCD"/>
   <stringAttribute key="com.mounriver.debug.gdbjtag.openocd.gdbServerConnectionAddress" value=""/>
@@ -54,7 +54,7 @@
   <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.portNumber" value="3333"/>
   <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
   <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-    <listEntry value="CH32V30x_cherryusb_ft2232h"/>
+    <listEntry value="CH32V30x_ft2232h_XilinxCable"/>
   </listAttribute>
   <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
     <listEntry value="4"/>

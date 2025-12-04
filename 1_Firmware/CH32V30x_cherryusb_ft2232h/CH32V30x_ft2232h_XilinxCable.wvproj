@@ -42,7 +42,7 @@
 				"name": "main.h"
 			}
 		],
-		"projectName": "CH32V30x_cherryusb_ft2232h",
+		"projectName": "CH32V30x_ft2232h_XilinxCable",
 		"architecture": "RISC-V",
 		"projectType": "c"
 	},
@@ -378,6 +378,7 @@
 					"show_totals": false,
 					"other_flags": ""
 				},
+				"configVariables": [],
 				"riscvTargetProcessor": {
 					"architecture": "rv32i",
 					"multiply_extension": true,
@@ -397,8 +398,7 @@
 					"other_target_flags": ""
 				},
 				"component_toolchain": "${WCH:Toolchain:GCC8}",
-				"name": "obj",
-				"configVariables": []
+				"name": "obj"
 			},
 			{
 				"buildArtifact": {
@@ -664,6 +664,7 @@
 					"show_totals": false,
 					"other_flags": ""
 				},
+				"configVariables": [],
 				"riscvTargetProcessor": {
 					"architecture": "rv32i",
 					"multiply_extension": true,
@@ -683,17 +684,16 @@
 					"other_target_flags": ""
 				},
 				"component_toolchain": "${WCH:Toolchain:GCC8}",
-				"name": "dbg",
-				"configVariables": []
+				"name": "dbg"
 			}
 		]
 	},
 	"flashConfig": {
 		"mcutype": "CH32V30x",
-		"address": "0x08000000",
-		"target_path": "obj\\CH32V30x_cherryusb_ft2232h.hex",
+		"address": "0x08005000",
+		"target_path": "obj\\CH32V30x_ft2232h_XilinxCable.hex",
 		"clkSpeed": "High",
-		"debug_interface_mode": "1-wire serial",
+		"debug_interface_mode": "",
 		"erase": false,
 		"program": true,
 		"verify": true,

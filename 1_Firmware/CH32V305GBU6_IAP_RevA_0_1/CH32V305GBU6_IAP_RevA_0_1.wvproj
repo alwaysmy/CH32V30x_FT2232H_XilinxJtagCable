@@ -11,7 +11,8 @@
 			"description": "Website: http://www.wch.cn/products/CH32V307.html?\\nROM(byte): 128K, SRAM(byte): 32K, CHIP PINS: 28, GPIO PORTS: 24.\\nWCH CH32V3 series of mainstream MCUs covers the needs of a large variety of applications in the industrial,medical and consumer markets. High performance with first-class peripherals and low-power,low-voltage operation is paired with a high level of integration at accessible prices with a simple architecture and easy-to-use tools.",
 			"link": "WCH-Link",
 			"peripheral_version": "2.9",
-			"calibrateSupport": false
+			"calibrateSupport": false,
+			"calibrateCommand": ""
 		},
 		"linkedFolders": [],
 		"removedResources": [
@@ -292,6 +293,7 @@
 					"show_totals": false,
 					"other_flags": ""
 				},
+				"configVariables": [],
 				"riscvTargetProcessor": {
 					"architecture": "rv32i",
 					"multiply_extension": true,
@@ -311,8 +313,7 @@
 					"other_target_flags": ""
 				},
 				"component_toolchain": "${WCH:Toolchain:GCC8}",
-				"name": "obj",
-				"configVariables": []
+				"name": "obj"
 			}
 		]
 	},
@@ -321,7 +322,7 @@
 		"address": "0x08000000",
 		"target_path": "obj/CH32V305GBU6_IAP_RevA_0_1.hex",
 		"clkSpeed": "High",
-		"debug_interface_mode": "1-wire serial",
+		"debug_interface_mode": "",
 		"erase": false,
 		"program": true,
 		"verify": true,
@@ -329,7 +330,7 @@
 		"sdiPrintf": false,
 		"disablepowerout": false,
 		"clearcodeflash": false,
-		"disablecodeprotect": false,
+		"disablecodeprotect": true,
 		"exepath": "",
 		"exearguments": ""
 	},
@@ -398,7 +399,7 @@
 			"showDebugOutputTimestamps": true
 		},
 		"reserve": {
-			"PROGRAM_NAME": "obj\\CH32V305GBU6_IAP_RevA_0_1.elf",
+			"PROGRAM_NAME": "obj/CH32V305GBU6_IAP_RevA_0_1.elf",
 			"PROJECT_ATTR": "CH32V305GBU6_IAP_RevA_0_1",
 			"PROJECT_BUILD_CONFIG_AUTO_ATTR": true,
 			"PROJECT_BUILD_CONFIG_ID_ATTR": "",
